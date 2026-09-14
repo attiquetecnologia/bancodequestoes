@@ -285,7 +285,16 @@ Configure o projeto Pages para usar o mesmo repositório, mas com estas propried
 - **Output directory:** `dist`
 - **Variável de build:** `VITE_API_URL=https://api.exemplo.com`
 
-O frontend chama somente a URL pública da API. Não coloque `DATABASE_URL`, `JWT_SECRET_KEY` ou qualquer segredo no frontend: variáveis `VITE_*` ficam embutidas no JavaScript entregue ao navegador.
+Ambientes do frontend:
+
+```text
+Desenvolvimento: VITE_API_URL=http://127.0.0.1:8000
+Produção:        VITE_API_URL=https://bancodequestoes.rodrigoatique.workers.dev
+```
+
+Os arquivos `frontend/.env.example` e `frontend/.env.production.example` registram esses valores. No Cloudflare Pages, cadastre `VITE_API_URL` em **Settings > Environment variables > Production** e faça um novo deploy, pois variáveis `VITE_*` são incorporadas durante o build.
+
+O frontend chama somente a URL pública da API. Não coloque `DATABASE_URL`, `JWT_SECRET_KEY` ou qualquer segredo no frontend: variáveis `VITE_*` ficam embutidas no JavaScript entregue ao navegador. O domínio usado em `VITE_API_URL` deve ser realmente o domínio do serviço FastAPI no Render; se `bancodequestoes.rodrigoatique.workers.dev` for apenas o domínio do frontend, substitua-o pela URL `onrender.com` da API.
 
 ### Git e deploy independente
 

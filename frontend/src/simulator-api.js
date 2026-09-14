@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_URL } from "./config";
 
 export async function getSimulation(simulationId = 1) {
   const response = await fetch(`${API_URL}/api/v1/simulations/${simulationId}`);
