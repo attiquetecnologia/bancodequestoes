@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador SAEP 2026 - Técnico em Desenvolvimento de Sistemas (SENAI-SP)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        senai: {
+                            50: '#e6f0fa',
+                            100: '#cce1f5',
+                            500: '#003366',
+                            600: '#002244',
+                            700: '#001933',
+                            accent: '#FF6600'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-senai-500 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                <div class="bg-senai-accent text-white p-2 rounded-lg font-bold text-xl flex items-center justify-center shadow">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">SIMULADO SAEP 2026</h1>
+                    <p class="text-xs text-senai-100">Técnico em Desenvolvimento de Sistemas | SENAI-SP</p>
+                </div>
+            </div>
+            <div id="header-stats" class="hidden flex items-center space-x-4 text-sm bg-senai-600 px-4 py-2 rounded-lg shadow-inner">
+                <div><i class="fa-solid fa-clock mr-1 text-senai-accent"></i> Tempo: <span id="timer-display" class="font-mono font-bold">00:00</span></div>
+                <div><i class="fa-solid fa-list-check mr-1 text-senai-accent"></i> Questão: <span id="question-progress" class="font-bold">1 / 60</span></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-8">
+        
+        <!-- Welcome Screen -->
+        <div id="screen-welcome" class="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100">
+            <div class="text-center max-w-2xl mx-auto">
+                <span class="bg-senai-50 text-senai-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Avaliação Diagnóstica e Preparatória</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-senai-700 mt-3 mb-4">Simulador Oficial SAEP 2026</h2>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    Este simulado engloba <strong>60 questões de múltipla escolha</strong> distribuídas por todas as Unidades Curriculares do Plano de Curso de <strong>Técnico em Desenvolvimento de Sistemas (SENAI-SP)</strong>: Módulo Básico, Módulo Específico I e Módulo Específico II. Teste seus conhecimentos e prepare-se para o mundo do trabalho!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-center">
+                    <div class="text-senai-500 text-2xl mb-2"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3 class="font-bold text-gray-800">Abrangência Total</h3>
+                    <p class="text-xs text-gray-500 mt-1">Lógica, Banco de Dados, Front-End, Back-End, Redes, IoT, Testes e Projetos.</p>
+                </div>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-center">
+                    <div class="text-senai-500 text-2xl mb-2"><i class="fa-solid fa-stopwatch"></i></div>
+                    <h3 class="font-bold text-gray-800">Modo Simulado Real</h3>
+                    <p class="text-xs text-gray-500 mt-1">Cronômetro ativo, navegação fluida entre questões e revisão completa ao final.</p>
+                </div>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-center">
+                    <div class="text-senai-500 text-2xl mb-2"><i class="fa-solid fa-book-open-reader"></i></div>
+                    <h3 class="font-bold text-gray-800">Feedback Detalhado</h3>
+                    <p class="text-xs text-gray-500 mt-1">Gabarito com justificativas fundamentadas para cada alternativa e dica de estudo.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
+                <button onclick="startExam()" class="w-full sm:w-auto bg-senai-accent hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center space-x-2 text-lg">
+                    <span>Iniciar Simulado (60 Questões)</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Exam Screen -->
+        <div id="screen-exam" class="hidden space-y-6">
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                    <span id="question-tag" class="bg-senai-50 text-senai-600 text-xs font-semibold px-3 py-1 rounded-md"></span>
+                    <span class="text-xs font-medium text-gray-400">Questão <span id="current-q-num">1</span> de 60</span>
+                </div>
+
+                <h3 id="question-text" class="text-lg md:text-xl font-bold text-gray-900 mb-6 leading-snug"></h3>
+
+                <!-- Options -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <!-- Hint Box -->
+                <div class="mt-6">
+                    <button onclick="toggleHint()" class="text-xs text-senai-500 hover:text-senai-700 font-semibold flex items-center space-x-1 focus:outline-none">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span id="hint-toggle-text">Mostrar Dica</span>
+                    </button>
+                    <div id="hint-box" class="hidden mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                        <span class="font-bold">Dica:</span> <span id="hint-text"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                <button onclick="prevQuestion()" id="btn-prev" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-5 py-2.5 rounded-lg text-sm transition duration-150 disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2">
+                    <i class="fa-solid fa-chevron-left"></i>
+                    <span>Anterior</span>
+                </button>
+
+                <!-- Question Grid Modal/Dropdown trigger or indicator -->
+                <div class="text-sm font-medium text-gray-600 hidden sm:block">
+                    Respondidas: <span id="answered-count" class="font-bold text-senai-500">0</span> / 60
+                </div>
+
+                <button onclick="nextQuestion()" id="btn-next" class="bg-senai-500 hover:bg-senai-600 text-white font-semibold px-6 py-2.5 rounded-lg text-sm shadow transition duration-150 flex items-center space-x-2">
+                    <span id="btn-next-text">Próxima</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Question Quick Palette -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <p class="text-xs font-semibold text-gray-500 mb-3">Navegação Rápida entre Questões:</p>
+                <div id="palette-grid" class="grid grid-cols-10 sm:grid-cols-12 md:grid-cols-15 gap-1.5 max-h-32 overflow-y-auto p-1">
+                    <!-- Palette numbers generated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="screen-results" class="hidden bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-senai-50 text-senai-500 rounded-full text-3xl mb-4 shadow-inner">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold text-senai-700 mb-2">Simulado Concluído!</h2>
+            <p class="text-gray-600 mb-6">Confira abaixo o seu desempenho geral nas competências do SAEP 2026.</p>
+
+            <div class="bg-gray-50 max-w-md mx-auto p-6 rounded-2xl border border-gray-200 mb-8">
+                <div class="text-5xl font-black text-senai-500 mb-2" id="final-score">0 / 60</div>
+                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide" id="final-percentage">Aproveitamento: 0%</p>
+                <div id="final-message" class="mt-4 text-sm font-medium text-gray-700 bg-white p-3 rounded-lg border border-gray-100 shadow-sm"></div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="reviewAnswers()" class="bg-senai-500 hover:bg-senai-600 text-white font-semibold px-6 py-3 rounded-xl shadow transition duration-200 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Revisar Questões e Gabarito</span>
+                </button>
+                <button onclick="restartExam()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 py-3 rounded-xl transition duration-200 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Refazer Simulado</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Review Screen -->
+        <div id="screen-review" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                <h3 class="font-bold text-lg text-senai-700"><i class="fa-solid fa-clipboard-list mr-2"></i> Revisão Detalhada do Simulado</h3>
+                <button onclick="backToResults()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Voltar ao Sumário</button>
+            </div>
+            <div id="review-container" class="space-y-6">
+                <!-- Detailed question review items will be injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6 text-center text-xs text-gray-500">
+        <p>Simulador Oficial SAEP 2026 - Desenvolvido com base no Plano de Curso Técnico em Desenvolvimento de Sistemas SENAI-SP.</p>
+        <p class="mt-1">Autor: Rodrigo Attique Santana</p>
+        <p class="mt-1">Email: rodrigoatique@gmail.com</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Database of 60 questions covering all UCs of the course
+        const questionsData = [
+            // Lógica de Programação e Algoritmos (1-8)
+            {
+                id: 1, tag: "Lógica de Programação e Algoritmos",
+                question: "Em um algoritmo, qual estrutura de controle é mais adequada para executar um conjunto de instruções um número determinado de vezes, utilizando uma variável de contagem?",
+                options: [
+                    { text: "Estrutura condicional simples (if)", isCorrect: false, rationale: "Executa instruções apenas uma vez mediante uma condição booleana, sem contar iterações." },
+                    { text: "Laço de repetição com contador (for)", isCorrect: true, rationale: "O laço for é ideal para repetições controladas por contador com limite definido." },
+                    { text: "Estrutura de seleção múltipla (switch)", isCorrect: false, rationale: "Utilizada para desvios condicionais múltiplos e não para repetições." },
+                    { text: "Laço condicional pré-testado (while)", isCorrect: false, rationale: "Geralmente empregado quando o número de iterações é desconhecido e depende de condição." }
+                ],
+                hint: "Pense na estrutura que possui inicialização, condição e incremento explícitos."
+            },
+            {
+                id: 2, tag: "Lógica de Programação e Algoritmos",
+                question: "Qual operador lógico retorna verdadeiro (true) se e somente se AMBAS as condições avaliadas forem verdadeiras?",
+                options: [
+                    { text: "E (AND)", isCorrect: true, rationale: "O operador E (AND) exige que todas as expressões booleanas sejam verdadeiras para o resultado ser verdadeiro." },
+                    { text: "OU (OR)", isCorrect: false, rationale: "Retorna verdadeiro se pelo menos uma das condições for verdadeira." },
+                    { text: "NÃO (NOT)", isCorrect: false, rationale: "Inverte o valor lógico da condição avaliada." },
+                    { text: "OU Exclusivo (XOR)", isCorrect: false, rationale: "Retorna verdadeiro apenas quando as condições possuem valores lógicos distintos." }
+                ],
+                hint: "É representado na programação por símbolos como '&&'."
+            },
+            {
+                id: 3, tag: "Lógica de Programação e Algoritmos",
+                question: "O que caracteriza a adoção de técnicas de código limpo (Clean Code) no desenvolvimento de software?",
+                options: [
+                    { text: "Abreviar ao máximo os nomes de variáveis para economizar memória do computador.", isCorrect: false, rationale: "Nomes abreviados prejudicam a legibilidade e violam princípios de código limpo." },
+                    { text: "Escrever códigos legíveis, fáceis de manter, com nomes significativos e funções coesas.", isCorrect: true, rationale: "Código limpo prioriza a clareza, legibilidade e facilidade de manutenção por outros desenvolvedores." },
+                    { text: "Eliminar completamente a necessidade de comentários e documentação em qualquer projeto.", isCorrect: false, rationale: "Embora código limpo seja autoexplicativo, comentários ainda são úteis para explicar o 'porquê' de certas decisões." },
+                    { text: "Utilizar exclusivamente paradigmas de programação de baixo nível.", isCorrect: false, rationale: "Clean Code aplica-se a qualquer linguagem ou nível de abstração." }
+                ],
+                hint: "O código deve ser fácil de ser lido e compreendido por humanos."
+            },
+            {
+                id: 4, tag: "Lógica de Programação e Algoritmos",
+                question: "No contexto do Git (sistema de controle de versão distribuído), qual comando é utilizado para registrar as alterações efetivadas no repositório local?",
+                options: [
+                    { text: "git clone", isCorrect: false, rationale: "Utilizado para clonar um repositório remoto para a máquina local." },
+                    { text: "git push", isCorrect: false, rationale: "Envia os commits locais para o repositório remoto." },
+                    { text: "git commit", isCorrect: true, rationale: "O commit consolida e registra as alterações preparadas (staging area) no histórico local." },
+                    { text: "git init", isCorrect: false, rationale: "Inicializa um novo repositório Git vazio." }
+                ],
+                hint: "É o comando que cria um ponto de salvamento oficial no histórico com mensagem descritiva."
+            },
+            {
+                id: 5, tag: "Lógica de Programação e Algoritmos",
+                question: "Em linguagens de programação, qual é a principal diferença entre variáveis e constantes?",
+                options: [
+                    { text: "Variáveis armazenam apenas números inteiros, enquanto constantes armazenam textos.", isCorrect: false, rationale: "Ambas podem armazenar diversos tipos de dados conforme a tipagem." },
+                    { text: "O valor de uma variável pode ser alterado durante a execução do programa, enquanto o valor de uma constante permanece fixo.", isCorrect: true, rationale: "Constantes protegem valores que não devem sofrer modificações ao longo da execução." },
+                    { text: "Constantes ocupam espaço em disco, ao passo que variáveis residem apenas na CPU.", isCorrect: false, rationale: "Ambas residem na memória RAM durante a execução." },
+                    { text: "Variáveis não exigem declaração de tipo prévia em nenhuma linguagem.", isCorrect: false, rationale: "Depende da tipagem estática ou dinâmica da linguagem." }
+                ],
+                hint: "Pense no significado literal dos termos: mudar versus manter constante."
+            },
+            {
+                id: 6, tag: "Lógica de Programação e Algoritmos",
+                question: "O que representa uma matriz em programação estruturada?",
+                options: [
+                    { text: "Uma variável simples de armazenamento de caractere único.", isCorrect: false, rationale: "Caracteres únicos são do tipo char." },
+                    { text: "Uma estrutura de dados homogênea bidimensional (linhas e colunas).", isCorrect: true, rationale: "Matrizes são arranjos multidimensionais (geralmente 2D) organizados em linhas e colunas." },
+                    { text: "Um comando de repetição condicional aninhado.", isCorrect: false, rationale: "Trata-se de estrutura de dados e não de controle de fluxo." },
+                    { text: "Uma função matemática de criptografia.", isCorrect: false, rationale: "Não se refere a criptografia." }
+                ],
+                hint: "Imagine uma tabela com células indexadas por dois índices: [linha][coluna]."
+            },
+            {
+                id: 7, tag: "Lógica de Programação e Algoritmos",
+                question: "Qual plataforma de versionamento em nuvem utiliza o conceito de 'Pull Requests' para propor e revisar alterações de código em equipes?",
+                options: [
+                    { text: "GitHub", isCorrect: true, rationale: "GitHub popularizou o fluxo de Pull Requests para revisão de código colaborativo." },
+                    { text: "Apache HTTP Server", isCorrect: false, rationale: "Trata-se de um servidor web e não de plataforma Git." },
+                    { text: "MySQL Workbench", isCorrect: false, rationale: "Ferramenta de gerenciamento de banco de dados relacional." },
+                    { text: "Visual Studio Code", isCorrect: false, rationale: "Ambiente de Desenvolvimento Integrado (IDE) / editor de código." }
+                ],
+                hint: "É uma das plataformas mais populares do mundo hospedada pela Microsoft."
+            },
+            {
+                id: 8, tag: "Lógica de Programação e Algoritmos",
+                question: "Qual é a finalidade principal de um fluxograma na elaboração de algoritmos?",
+                options: [
+                    { text: "Compilar código fonte diretamente para linguagem de máquina.", isCorrect: false, rationale: "Fluxogramas são representações gráficas, não compiladores." },
+                    { text: "Representar graficamente a sequência lógica de passos e fluxos de decisão de um processo.", isCorrect: true, rationale: "Fluxogramas usam símbolos padronizados para ilustrar visualmente a lógica do algoritmo." },
+                    { text: "Configurar endereços IP em redes locais.", isCorrect: false, rationale: "Função de administração de redes." },
+                    { text: "Gerenciar tabelas relacionais em SGBDs.", isCorrect: false, rationale: "Atribuição de modelagem de dados." }
+                ],
+                hint: "Utiliza símbolos geométricos conectados por setas."
+            },
+
+            // Levantamento de Requisitos (9-15)
+            {
+                id: 9, tag: "Levantamento de Requisitos",
+                question: "Qual é a principal distinção entre requisitos funcionais e não funcionais em um sistema?",
+                options: [
+                    { text: "Requisitos funcionais tratam de custos financeiros, enquanto os não funcionais tratam de prazos.", isCorrect: false, rationale: "Custos e prazos pertencem à gestão de projetos." },
+                    { text: "Requisitos funcionais descrevem o que o sistema faz (ações e serviços), e os não funcionais descrevem restrições de qualidade, desempenho e segurança.", isCorrect: true, rationale: "Funcionais definem funcionalidades; não funcionais definem atributos como velocidade, segurança e usabilidade." },
+                    { text: "Requisitos funcionais são criados pelo cliente e os não funcionais pelo programador júnior.", isCorrect: false, rationale: "Ambos são elicitados em conjunto com stakeholders e analistas." },
+                    { text: "Requisitos não funcionais são opcionais em qualquer projeto ágil.", isCorrect: false, rationale: "Requisitos não funcionais são obrigatórios para garantir robustez e conformidade." }
+                ],
+                hint: "Pense na diferença entre 'o que o sistema faz' versus 'como o sistema deve se comportar'."
+            },
+            {
+                id: 10, tag: "Levantamento de Requisitos",
+                question: "Na metodologia ágil Scrum, qual papel é o principal responsável por gerenciar o Product Backlog e priorizar os itens de acordo com o valor de negócio?",
+                options: [
+                    { text: "Scrum Master", isCorrect: false, rationale: "Facilita os processos do Scrum e remove impedimentos da equipe." },
+                    { text: "Product Owner (P.O.)", isCorrect: true, rationale: "O PO representa o cliente/negócio e define a prioridade do backlog." },
+                    { text: "Lead Developer", isCorrect: false, rationale: "Lidera a parte técnica de desenvolvimento." },
+                    { text: "Quality Assurance (QA)", isCorrect: false, rationale: "Foca na garantia de qualidade e testes." }
+                ],
+                hint: "É a voz do cliente junto ao time de desenvolvimento."
+            },
+            {
+                id: 11, tag: "Levantamento de Requisitos",
+                question: "Quais são as etapas fundamentais que compõem o processo do Design Thinking?",
+                options: [
+                    { text: "Empatia, Ideação, Prototipação, Teste e Implementação.", isCorrect: true, rationale: "Estas são as fases clássicas do processo de Design Thinking centrado no usuário." },
+                    { text: "Compilação, Teste Unitário, Deploy e Manutenção.", isCorrect: false, rationale: "Ciclo de vida de desenvolvimento de software tradicional." },
+                    { text: "MER, DER, Normalização e DDL.", isCorrect: false, rationale: "Fases de modelagem de banco de dados." },
+                    { text: "Briefing, Commit, Push e Merge.", isCorrect: false, rationale: "Mistura conceitos de requisição e controle de versão." }
+                ],
+                hint: "Começa compreendendo profundamente as pessoas e passa por ideação e protótipos."
+            },
+            {
+                id: 12, tag: "Levantamento de Requisitos",
+                question: "O que é um quadro Kanban e qual sua utilidade na gestão de projetos?",
+                options: [
+                    { text: "Um software antivírus para proteção de servidores web.", isCorrect: false, rationale: "Antivírus é software de segurança." },
+                    { text: "Uma ferramenta visual de gerenciamento de fluxo de trabalho que categoriza tarefas em colunas como A Fazer, Em Andamento e Concluído.", isCorrect: true, rationale: "Kanban visualiza o trabalho em andamento para otimizar o fluxo e evitar gargalos." },
+                    { text: "Um diagrama de classes em UML.", isCorrect: false, rationale: "UML é para modelagem orientada a objetos." },
+                    { text: "Uma linguagem de marcação estruturada.", isCorrect: false, rationale: "Como HTML." }
+                ],
+                hint: "Utiliza cartões visuais movidos entre colunas de status."
+            },
+            {
+                id: 13, tag: "Levantamento de Requisitos",
+                question: "Qual técnica de levantamento de requisitos envolve a observação direta dos usuários executando suas tarefas no ambiente real de trabalho?",
+                options: [
+                    { text: "Etnografia", isCorrect: true, rationale: "A etnografia observa o usuário no seu ambiente natural para capturar necessidades implícitas." },
+                    { text: "Brainstorming", isCorrect: false, rationale: "Reunião de geração de ideias criativas em grupo." },
+                    { text: "Diagrama de Entidade-Relacionamento", isCorrect: false, rationale: "Modelagem de dados." },
+                    { text: "Teste de estresse", isCorrect: false, rationale: "Teste de software." }
+                ],
+                hint: "Técnica oriunda da antropologia aplicada à engenharia de software."
+            },
+            {
+                id: 14, tag: "Levantamento de Requisitos",
+                question: "O que define uma Regra de Negócio durante a elicitação de requisitos?",
+                options: [
+                    { text: "A velocidade da conexão de rede exigida pelo servidor.", isCorrect: false, rationale: "Requisito de infraestrutura." },
+                    { text: "Diretrizes, políticas e restrições operacionais que a organização deve seguir em seus processos.", isCorrect: true, rationale: "Regras de negócio traduzem a lógica operacional e as políticas da empresa." },
+                    { text: "O número máximo de linhas de código permitidas por arquivo.", isCorrect: false, rationale: "Padrão de desenvolvimento de código." },
+                    { text: "A versão do SGBD utilizada na produção.", isCorrect: false, rationale: "Requisito técnico." }
+                ],
+                hint: "Exemplo: 'Clientes ouro possuem 10% de desconto automático no frete'."
+            },
+            {
+                id: 15, tag: "Levantamento de Requisitos",
+                question: "Qual é o objetivo do documento de Briefing no início de um projeto de software?",
+                options: [
+                    { text: "Descrever detalhadamente o código binário compilado.", isCorrect: false, rationale: "Não se refere a binários." },
+                    { text: "Coletar as necessidades iniciais, expectativas e objetivos do cliente para nortear o projeto.", isCorrect: true, rationale: "Briefing é o resumo inicial das necessidades e escopo trazido pelo cliente." },
+                    { text: "Realizar o teste de aceitação final do sistema.", isCorrect: false, rationale: "Ocorre ao final." },
+                    { text: "Configurar o roteador Wi-Fi da empresa.", isCorrect: false, rationale: "Irrelevante." }
+                ],
+                hint: "É a conversa ou questionário inicial com o cliente."
+            },
+
+            // Arquitetura de Redes com IoT (16-22)
+            {
+                id: 16, tag: "Arquitetura de Redes com IoT",
+                question: "Qual protocolo leve de mensagens baseado em publicação/assinatura (Pub/Sub) é amplamente utilizado em dispositivos IoT e automação industrial?",
+                options: [
+                    { text: "HTTP", isCorrect: false, rationale: "HTTP é baseado em requisição/resposta, mais pesado para sensores restritos." },
+                    { text: "MQTT (Message Queuing Telemetry Transport)", isCorrect: true, rationale: "MQTT é otimizado para redes instáveis e dispositivos com baixo consumo de energia." },
+                    { text: "FTP", isCorrect: false, rationale: "Protocolo para transferência de arquivos." },
+                    { text: "RDP", isCorrect: false, rationale: "Protocolo de área de trabalho remota." }
+                ],
+                hint: "Utiliza brokers, tópicos e clientes que publicam ou subscrevem."
+            },
+            {
+                id: 17, tag: "Arquitetura de Redes com IoT",
+                question: "O que caracteriza uma topologia de rede em Malha (Mesh)?",
+                options: [
+                    { text: "Todos os nós são conectados a um único cabo central (Barramento).", isCorrect: false, rationale: "Característica de barramento." },
+                    { text: "Dispositivos possuem múltiplos caminhos de interconexão entre si, oferecendo alta redundância e tolerância a falhas.", isCorrect: true, rationale: "Na topologia mesh, os nós conectam-se diretamente a múltiplos vizinhos." },
+                    { text: "Os computadores formam um círculo fechado onde os dados circulam em um sentido.", isCorrect: false, rationale: "Topologia em anel." },
+                    { text: "Um nó central (como um switch) conecta todos os demais nós.", isCorrect: false, rationale: "Topologia em estrela." }
+                ],
+                hint: "Oferece rotas alternativas caso um dos caminhos caia."
+            },
+            {
+                id: 18, tag: "Arquitetura de Redes com IoT",
+                question: "No endereçamento IPv4, quantos bits compõem o endereço IP completo?",
+                options: [
+                    { text: "32 bits", isCorrect: true, rationale: "IPv4 possui 32 bits divididos em 4 octetos." },
+                    { text: "64 bits", isCorrect: false, rationale: "Tamanho incorreto para IPv4." },
+                    { text: "128 bits", isCorrect: false, rationale: "128 bits é o padrão do IPv6." }, // Correto: 128 bits é IPv6, mas aqui 32 bits é IPv4
+                    { text: "16 bits", isCorrect: false, rationale: "Muito pequeno." }
+                ],
+                hint: "Exemplo: 192.168.1.1 (4 blocos de 8 bits)."
+            },
+            {
+                id: 19, tag: "Arquitetura de Redes com IoT",
+                question: "Qual dispositivo de rede atua na camada de rede (Camada 3 do OSI) encaminhando pacotes entre redes distintas?",
+                options: [
+                    { text: "Switch de camada 2", isCorrect: false, rationale: "Opera na camada de enlace (endereços MAC)." },
+                    { text: "Roteador", isCorrect: true, rationale: "Roteadores utilizam endereços IP para interligar redes e direcionar pacotes." },
+                    { text: "Hub passivo", isCorrect: false, rationale: "Repete sinais cegamente na camada física." },
+                    { text: "Cabo coaxial", isCorrect: false, rationale: "Meio físico de transmissão." }
+                ],
+                hint: "É o equipamento que conecta sua casa à internet através da operadora."
+            },
+            {
+                id: 20, tag: "Arquitetura de Redes com IoT",
+                question: "O que significam os componentes de I/O (Inputs e Outputs) na arquitetura de hardware voltada para IoT?",
+                options: [
+                    { text: "Interfaces de entrada (sensores, botões) e saída (atuadores, LEDs, motores) para interação com o mundo físico.", isCorrect: true, rationale: "I/O permite que microcontroladores leiam sensores e acionem atuadores físicos." },
+                    { text: "Sistemas operacionais de código fechado para servidores em nuvem.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Protocolos de criptografia de banco de dados.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Ferramentas de controle de versão Git.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Entradas coletam dados do ambiente; saídas realizam ações no ambiente."
+            },
+            {
+                id: 21, tag: "Arquitetura de Redes com IoT",
+                question: "Qual porta padrão é utilizada pelo protocolo HTTPS para requisições web seguras?",
+                options: [
+                    { text: "Porta 80", isCorrect: false, rationale: "Porta padrão para HTTP não seguro." },
+                    { text: "Porta 443", isCorrect: true, rationale: "Porta 443 é o padrão dedicado ao tráfego HTTP criptografado (TLS/SSL)." },
+                    { text: "Porta 21", isCorrect: false, rationale: "Porta padrão para FTP." },
+                    { text: "Porta 3306", isCorrect: false, rationale: "Porta padrão para MySQL." }
+                ],
+                hint: "É a porta que garante o cadeado verde no navegador."
+            },
+            {
+                id: 22, tag: "Arquitetura de Redes com IoT",
+                question: "Em arquiteturas de rede, o que caracteriza o modelo Cliente-Servidor?",
+                options: [
+                    { text: "Todos os computadores possuem exatamente o mesmo nível hierárquico sem servidor central.", isCorrect: false, rationale: "Isso define redes Peer-to-Peer (P2P)." },
+                    { text: "Um ou mais computadores centrais (servidores) fornecem recursos e serviços para os demais computadores (clientes) da rede.", isCorrect: true, rationale: "O servidor centraliza dados/serviços e atende às requisições dos clientes." },
+                    { text: "A comunicação ocorre exclusivamente via rádio frequência sem fio.", isCorrect: false, rationale: "Independe do meio físico." },
+                    { text: "Os dados ficam armazenados de forma descentralizada via blockchain.", isCorrect: false, rationale: "Arquitetura específica de blockchain." }
+                ],
+                hint: "Pense em um navegador acessando uma aplicação web hospedada em um servidor."
+            },
+
+            // Sistemas Operacionais (23-30)
+            {
+                id: 23, tag: "Sistemas Operacionais",
+                question: "No sistema operacional Linux (código aberto), qual comando em modo texto é utilizado para navegar entre diretórios?",
+                options: [
+                    { text: "ls", isCorrect: false, rationale: "Lista arquivos e diretórios." },
+                    { text: "cd", isCorrect: true, rationale: "O comando 'cd' (change directory) altera o diretório de trabalho atual." },
+                    { text: "mkdir", isCorrect: false, rationale: "Cria um novo diretório." },
+                    { text: "rm", isCorrect: false, rationale: "Remove arquivos ou diretórios." }
+                ],
+                hint: "Abreviação de 'change directory'."
+            },
+            {
+                id: 24, tag: "Sistemas Operacionais",
+                question: "Qual é a principal função de um Firewall nativo em um sistema operacional?",
+                options: [
+                    { text: "Acelerar a velocidade de download de arquivos grandes.", isCorrect: false, rationale: "Função de otimização de rede ou hardware." },
+                    { text: "Controlar e filtrar o tráfego de rede de entrada e saída com base em regras de segurança pré-estabelecidas.", isCorrect: true, rationale: "Firewalls protegem o sistema bloqueando acessos indesejados ou maliciosos." },
+                    { text: "Compactar arquivos para economizar espaço em disco.", isCorrect: false, rationale: "Função de compactadores." },
+                    { text: "Gerenciar permissões de usuários em banco de dados.", isCorrect: false, rationale: "Função de SGBD." }
+                ],
+                hint: "Atua como uma 'parede de fogo' controlando portas e conexões de rede."
+            },
+            {
+                id: 25, tag: "Sistemas Operacionais",
+                question: "O que estabelece a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018) no Brasil?",
+                options: [
+                    { text: "Regras rígidas sobre coleta, armazenamento e tratamento de dados pessoais de indivíduos por organizações públicas e privadas.", isCorrect: true, rationale: "A LGPD protege os direitos fundamentais de privacidade e proteção de dados dos cidadãos." },
+                    { text: "A obrigatoriedade de uso do sistema Linux em órgãos governamentais.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "O marco regulatório para infraestrutura de fibra óptica em zonas rurais.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "A taxação de impostos sobre e-commerces internacionais.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Garante consentimento e transparência no uso de dados pessoais."
+            },
+            {
+                id: 26, tag: "Sistemas Operacionais",
+                question: "O que é uma VPN (Virtual Private Network) utilizada em sistemas operacionais e redes?",
+                options: [
+                    { text: "Um tipo de vírus que rouba senhas de administradores.", isCorrect: false, rationale: "VPN é ferramenta de segurança legítima." },
+                    { text: "Um túnel criptografado que permite conectar dispositivos com segurança a uma rede privada através de uma rede pública (como a internet).", isCorrect: true, rationale: "VPN garante confidencialidade e integridade no tráfego remoto de dados." },
+                    { text: "Um protocolo de compactação de vídeos em alta definição.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Uma interface gráfica para gerenciamento de memória RAM.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Muito utilizada para trabalho remoto seguro (home office)."
+            },
+            {
+                id: 27, tag: "Sistemas Operacionais",
+                question: "Qual comando Linux é utilizado para criar um novo diretório (pasta)?",
+                options: [
+                    { text: "touch", isCorrect: false, rationale: "Cria um arquivo vazio." },
+                    { text: "mkdir", isCorrect: true, rationale: "Abreviação de 'make directory'." },
+                    { text: "cat", isCorrect: false, rationale: "Exibe o conteúdo de arquivos." },
+                    { text: "pwd", isCorrect: false, rationale: "Exibe o caminho do diretório atual." }
+                ],
+                hint: "Make directory."
+            },
+            {
+                id: 28, tag: "Sistemas Operacionais",
+                question: "O que caracteriza um ataque de Engenharia Social no contexto da segurança cibernética?",
+                options: [
+                    { text: "A exploração de falhas em placas de vídeo de alta performance.", isCorrect: false, rationale: "Falha de hardware." },
+                    { text: "A manipulação psicológica de usuários para induzi-los a revelar informações confidenciais ou senhas.", isCorrect: true, rationale: "Engenharia social explora a vulnerabilidade humana (ex: phishing)." },
+                    { text: "Um curto-circuito em servidores de data center.", isCorrect: false, rationale: "Acidente físico." },
+                    { text: "A sobrecarga de requisições em um servidor web (DDoS).", isCorrect: false, rationale: "Ataque de negação de serviço técnico." }
+                ],
+                hint: "Engana a pessoa, e não a máquina."
+            },
+            {
+                id: 29, tag: "Sistemas Operacionais",
+                question: "Qual é a finalidade do arquivo /etc/passwd ou gerenciamento de usuários em sistemas operacionais Unix/Linux?",
+                options: [
+                    { text: "Armazenar logs de conexões Wi-Fi.", isCorrect: false, rationale: "Logs ficam em /var/log." },
+                    { text: "Manter o registro das contas de usuários do sistema e suas informações básicas.", isCorrect: true, rationale: "Contém informações das contas de usuário cadastradas no sistema." },
+                    { text: "Guardar senhas criptografadas em texto plano.", isCorrect: false, rationale: "Senhas criptografadas ficam em /etc/shadow por segurança." },
+                    { text: "Configurar o endereço IP da placa de rede.", isCorrect: false, rationale: "Configurações de rede ficam em arquivos específicos." }
+                ],
+                hint: "Contém a listagem dos usuários cadastrados."
+            },
+            {
+                id: 30, tag: "Sistemas Operacionais",
+                question: "O que aborda o Marco Civil da Internet (Lei nº 12.965/2014) no Brasil?",
+                options: [
+                    { text: "Princípios, garantias, direitos e deveres para o uso da internet no Brasil, destacando a neutralidade da rede.", isCorrect: true, rationale: "O Marco Civil estabelece as bases legais e direitos dos usuários na rede." },
+                    { text: "A proibição de vendas de computadores sem sistema operacional livre.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "A regulamentação exclusiva de jogos eletrônicos.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "A obrigatoriedade de senhas com 32 caracteres.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Consagra a neutralidade da rede e a privacidade dos usuários."
+            },
+
+            // Banco de Dados (31-38)
+            {
+                id: 31, tag: "Banco de Dados",
+                question: "Qual comando SQL pertence à DDL (Data Definition Language) e é utilizado para criar uma nova tabela no banco de dados?",
+                options: [
+                    { text: "INSERT INTO", isCorrect: false, rationale: "Pertence à DML (Data Manipulation Language)." },
+                    { text: "CREATE TABLE", isCorrect: true, rationale: "CREATE TABLE define a estrutura da tabela no banco de dados." },
+                    { text: "SELECT * FROM", isCorrect: false, rationale: "Comando de consulta DML." },
+                    { text: "UPDATE", isCorrect: false, rationale: "Comando de atualização DML." }
+                ],
+                hint: "Comando para estruturar e definir o esquema."
+            },
+            {
+                id: 32, tag: "Banco de Dados",
+                question: "Qual cláusula SQL é utilizada para filtrar registros retornados por uma consulta com base em condições específicas?",
+                options: [
+                    { text: "GROUP BY", isCorrect: false, rationale: "Agrupa linhas que possuem valores iguais." },
+                    { text: "WHERE", isCorrect: true, rationale: "A cláusula WHERE filtra linhas de acordo com critérios lógicos." },
+                    { text: "ORDER BY", isCorrect: false, rationale: "Ordena o resultado da consulta." },
+                    { text: "UNION", isCorrect: false, rationale: "Combina conjuntos de resultados." }
+                ],
+                hint: "Significa 'onde' em inglês."
+            },
+            {
+                id: 33, tag: "Banco de Dados",
+                question: "O que realiza uma operação de INNER JOIN entre duas tabelas?",
+                options: [
+                    { text: "Retorna todos os registros da tabela à esquerda, mesmo sem correspondência.", isCorrect: false, rationale: "Característica do LEFT JOIN." },
+                    { text: "Retorna apenas os registros que possuem correspondência (correspondências exatas) em ambas as tabelas.", isCorrect: true, rationale: "INNER JOIN faz a junção cruzando apenas os dados que casam nas duas tabelas." },
+                    { text: "Retorna o produto cartesiano absoluto sem restrições.", isCorrect: false, rationale: "CROSS JOIN." },
+                    { text: "Apaga dados duplicados.", isCorrect: false, rationale: "Não se refere a exclusão." }
+                ],
+                hint: "Exibe somente a intersecção entre as tabelas relacionadas."
+            },
+            {
+                id: 34, tag: "Banco de Dados",
+                question: "Qual é o principal objetivo da Normalização de Banco de Dados?",
+                options: [
+                    { text: "Aumentar a redundância de dados para melhorar a velocidade de gravação em disco.", isCorrect: false, rationale: "Normalização visa REDUZIR a redundância." },
+                    { text: "Organizar as tabelas e colunas para reduzir a redundância de dados e evitar anomalias de atualização, inserção e exclusão.", isCorrect: true, rationale: "As formas normais garantem integridade estrutural e eliminam redundâncias desnecessárias." },
+                    { text: "Criptografar senhas de usuários com algoritmos de mão única.", isCorrect: false, rationale: "Função de segurança/criptografia." },
+                    { text: "Converter banco relacional em não relacional.", isCorrect: false, rationale: "São paradigmas diferentes." }
+                ],
+                hint: "Evita duplicação desnecessária de informações."
+            },
+            {
+                id: 35, tag: "Banco de Dados",
+                question: "O que é uma Stored Procedure (Procedimento Armazenado) em um SGBD?",
+                options: [
+                    { text: "Um arquivo de texto backup compactado.", isCorrect: false, rationale: "Backup é rotina de salvamento." },
+                    { text: "Um bloco de código SQL compilado e armazenado no servidor de banco de dados, executado sob demanda.", isCorrect: true, rationale: "Stored procedures encapsulam lógica de programação reutilizável diretamente no SGBD." },
+                    { text: "Uma restrição de chave estrangeira.", isCorrect: false, rationale: "Foreign Key." },
+                    { text: "Um tipo de dado geométrico.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Rotina procedural armazenada diretamente no banco."
+            },
+            {
+                id: 36, tag: "Banco de Dados",
+                question: "Qual comando SQL é utilizado para remover registros existentes de uma tabela?",
+                options: [
+                    { text: "DROP TABLE", isCorrect: false, rationale: "Exclui a tabela inteira do banco de dados (DDL)." },
+                    { text: "DELETE FROM", isCorrect: true, rationale: "DELETE remove linhas específicas de uma tabela com base em critérios." },
+                    { text: "REMOVE", isCorrect: false, rationale: "Não é um comando SQL padrão." },
+                    { text: "ALTER TABLE", isCorrect: false, rationale: "Modifica a estrutura da tabela." }
+                ],
+                hint: "Remove linhas, mantendo a estrutura da tabela intacta."
+            },
+            {
+                id: 37, tag: "Banco de Dados",
+                question: "O que representa o Modelo Entidade-Relacionamento (MER) e seu respectivo Diagrama (DER)?",
+                options: [
+                    { text: "A interface gráfica de usuário mobile em Flutter.", isCorrect: false, rationale: "Front-end mobile." },
+                    { text: "A representação conceitual e lógica da estrutura de dados, entidades, atributos e seus relacionamentos.", isCorrect: true, rationale: "MER/DER modelam o domínio de dados antes da implementação física." },
+                    { text: "O código fonte da aplicação Back-End em Node.js.", isCorrect: false, rationale: "Back-end." },
+                    { text: "O plano de testes automatizados com Selenium.", isCorrect: false, rationale: "Testes." }
+                ],
+                hint: "Diagrama com retângulos, losangos e linhas representando o banco."
+            },
+            {
+                id: 38, tag: "Banco de Dados",
+                question: "Para que serve a função de agregação COUNT() em consultas SQL?",
+                options: [
+                    { text: "Somar os valores numéricos de uma coluna inteira.", isCorrect: false, rationale: "Função SUM()." },
+                    { text: "Contar o número de linhas ou registros que atendem a um determinado critério.", isCorrect: true, rationale: "COUNT retorna a contagem de registros resultantes." },
+                    { text: "Encontrar o valor máximo em uma coluna.", isCorrect: false, rationale: "Função MAX()." },
+                    { text: "Calcular a média aritmética dos dados.", isCorrect: false, rationale: "Função AVG()." }
+                ],
+                hint: "Conta a quantidade de ocorrências."
+            },
+
+            // Linguagem de Marcação (39-44)
+            {
+                id: 39, tag: "Linguagem de Marcação",
+                question: "Qual tag HTML5 é semanticamente mais adequada para representar o cabeçalho principal de uma página ou seção?",
+                options: [
+                    { text: "<header>", isCorrect: true, rationale: "A tag semântica <header> representa conteúdo introdutório ou grupo de links de navegação." },
+                    { text: "<foot>", isCorrect: false, rationale: "A tag correta de rodapé é <footer>." },
+                    { text: "<div id='topo'>", isCorrect: false, rationale: "Div é genérica; <header> possui significado semântico." },
+                    { text: "<section-top>", isCorrect: false, rationale: "Tag inválida em HTML5." }
+                ],
+                hint: "Significa cabeçalho em inglês."
+            },
+            {
+                id: 40, tag: "Linguagem de Marcação",
+                question: "Em formulários HTML, qual atributo do elemento `<input>` define o tipo de dado esperado (ex: texto, senha, e-mail, número)?",
+                options: [
+                    { text: "class", isCorrect: false, rationale: "Utilizado para estilização CSS." },
+                    { text: "type", isCorrect: true, rationale: "O atributo 'type' especifica o comportamento e o formato de entrada do input (ex: type='password')." },
+                    { text: "href", isCorrect: false, rationale: "Utilizado em links <a>." },
+                    { text: "src", isCorrect: false, rationale: "Utilizado para fontes de imagem ou script." }
+                ],
+                hint: "Define se o campo aceita texto livre, senha mascarada ou e-mail."
+            },
+            {
+                id: 41, tag: "Linguagem de Marcação",
+                question: "O que significa a sigla HTML?",
+                options: [
+                    { text: "HyperText Markup Language", isCorrect: true, rationale: "Linguagem de Marcação de Hipertexto é a linguagem padrão para criação de páginas web." },
+                    { text: "High Transfer Machine Language", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Hyperlink and Text Management Logic", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Home Tool Multi Language", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Linguagem de marcação para páginas web baseadas em hipertexto."
+            },
+            {
+                id: 42, tag: "Linguagem de Marcação",
+                question: "Como se representa uma cor utilizando o formato RGB em estilização ou atributos web?",
+                options: [
+                    { text: "rgb(255, 0, 0)", isCorrect: true, rationale: "Define valores de Intensidade para Vermelho, Verde e Azul de 0 a 255." },
+                    { text: "#ZZ1122", isCorrect: false, rationale: "Letra Z é inválida em hexadecimal." },
+                    { text: "color: red-bright-500;", isCorrect: false, rationale: "Sintaxe inválida para RGB nativo." },
+                    { text: "rgb-mix(red, 100%)", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Combinação de Red, Green e Blue com valores numéricos."
+            },
+            {
+                id: 43, tag: "Linguagem de Marcação",
+                question: "Qual elemento HTML é utilizado para criar uma lista não ordenada (com marcadores em formato de pontos)?",
+                options: [
+                    { text: "<ol>", isCorrect: false, rationale: "Cria lista ordenada (numerada)." },
+                    { text: "<ul>", isCorrect: true, rationale: "<ul> (Unordered List) cria listas com marcadores em bullet points." },
+                    { text: "<list>", isCorrect: false, rationale: "Tag inválida; usa-se li combinada com ul/ol." },
+                    { text: "<dl>", isCorrect: false, rationale: "Lista de definição." }
+                ],
+                hint: "Unordered list."
+            },
+            {
+                id: 44, tag: "Linguagem de Marcação",
+                question: "Qual é a utilidade do elemento `<meta charset=\"UTF-8\">` no cabeçalho de um documento HTML?",
+                options: [
+                    { text: "Conectar o banco de dados MySQL à página web.", isCorrect: false, rationale: "HTML não conecta banco de dados diretamente." },
+                    { text: "Definar a codificação de caracteres do documento para suportar acentuação e caracteres especiais da língua portuguesa.", isCorrect: true, rationale: "UTF-8 garante a exibição correta de acentos e caracteres especiais." },
+                    { text: "Importar estilos CSS externos.", isCorrect: false, rationale: "Feito com a tag <link>." },
+                    { text: "Definir a velocidade de carregamento da imagem de fundo.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Garante que acentos (ç, á, ã) apareçam corretamente na tela."
+            },
+
+            // Programação Front-End (45-50)
+            {
+                id: 45, tag: "Programação Front-End",
+                question: "Em JavaScript, qual método ou forma é recomendada para selecionar um elemento HTML pelo seu atributo ID no DOM?",
+                options: [
+                    { text: "document.getElementById('meuId')", isCorrect: true, rationale: "getElementById é o método tradicional e direto para buscar elementos únicos por ID." },
+                    { text: "document.getElementsByClassName('meuId')", isCorrect: false, rationale: "Busca por classes (retorna coleção)." },
+                    { text: "document.queryAllTags('id')", isCorrect: false, rationale: "Método inexistente." },
+                    { text: "window.findId('meuId')", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Get element by id."
+            },
+            {
+                id: 46, tag: "Programação Front-End",
+                question: "O que é o DOM (Document Object Model) em aplicações web Front-End?",
+                options: [
+                    { text: "Um banco de dados NoSQL embarcado no navegador.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Uma interface de programação que representa a estrutura da página web como uma árvore de objetos, permitindo modificá-la via JavaScript.", isCorrect: true, rationale: "O DOM conecta páginas web a scripts, permitindo manipulação dinâmica de elementos, atributos e estilos." },
+                    { text: "Um compilador de código C++ para WebAssembly.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Um framework CSS concorrente do Bootstrap.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Representação em árvore dos elementos HTML na memória do navegador."
+            },
+            {
+                id: 47, tag: "Programação Front-End",
+                question: "Qual seletor CSS é utilizado para aplicar estilos a um elemento específico que possui o atributo `id=\"cabecalho\"`?",
+                options: [
+                    { text: ".cabecalho", isCorrect: false, rationale: "O ponto (.) seleciona classes CSS." },
+                    { text: "#cabecalho", isCorrect: true, rationale: "O caractere cerquilha (#) é o seletor padrão para IDs em CSS." },
+                    { text: "*cabecalho", isCorrect: false, rationale: "Asterisco seleciona todos os elementos." },
+                    { text: "element(cabecalho)", isCorrect: false, rationale: "Sintaxe inválida." }
+                ],
+                hint: "Usa o símbolo de sustenido/jogo da velha (#)."
+            },
+            {
+                id: 48, tag: "Programação Front-End",
+                question: "Em JavaScript moderno (ES6+), qual palavra-chave é utilizada para declarar uma variável escopada ao bloco cujo valor pode ser reatribuído?",
+                options: [
+                    { text: "var", isCorrect: false, rationale: "Possui escopo de função e sofre hoisting, sendo menos recomendada no ES6+." },
+                    { text: "let", isCorrect: true, rationale: "'let' declara variáveis com escopo de bloco e reatribuíveis." },
+                    { text: "const", isCorrect: false, rationale: "Declara constantes cujo valor não pode ser reatribuído." },
+                    { text: "static", isCorrect: false, rationale: "Utilizado em contextos de classes." }
+                ],
+                hint: "Substituiu amplamente o 'var' com escopo de bloco."
+            },
+            {
+                id: 49, tag: "Programação Front-End",
+                question: "Qual propriedade do CSS Flexbox define o alinhamento dos itens ao longo do eixo principal (main axis)?",
+                options: [
+                    { text: "align-items", isCorrect: false, rationale: "Alinha os itens ao longo do eixo transversal (cross axis)." },
+                    { text: "justify-content", isCorrect: true, rationale: "justify-content gerencia a distribuição e alinhamento no eixo principal." },
+                    { text: "flex-wrap", isCorrect: false, rationale: "Define se os itens quebram linha ou não." },
+                    { text: "grid-template", isCorrect: false, rationale: "Propriedade de CSS Grid." }
+                ],
+                hint: "Justifica o conteúdo horizontalmente ou verticalmente no eixo principal."
+            },
+            {
+                id: 50, tag: "Programação Front-End",
+                question: "Como se adiciona um evento de clique a um botão utilizando JavaScript?",
+                options: [
+                    { text: "botao.addEventListener('click', funcaoCallback);", isCorrect: true, rationale: "addEventListener é a forma padrão e moderna de registrar ouvintes de eventos." },
+                    { text: "botao.onClick('click', funcao);", isCorrect: false, rationale: "Sintaxe incorreta para método addEventListener." },
+                    { text: "botao.bindEvent('click');", isCorrect: false, rationale: "Incorreto." },
+                    { text: "document.click(botao);", isCorrect: false, rationale: "Dispara o clique em vez de ouvi-lo." }
+                ],
+                hint: "Adicionar ouvinte de evento."
+            },
+
+            // Programação Back-End (51-54)
+            {
+                id: 51, tag: "Programação Back-End",
+                question: "No desenvolvimento Back-End com Node.js e Express, o que representa um 'Middleware'?",
+                options: [
+                    { text: "Um banco de dados relacional em nuvem.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Funções que possuem acesso ao objeto de requisição (req), de resposta (res) e à próxima função de middleware no ciclo da aplicação.", isCorrect: true, rationale: "Middlewares interceptam requisições para executar validações, autenticações ou logs." },
+                    { text: "Uma biblioteca de estilização CSS.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Um protocolo de rede para IoT.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Fica no 'meio' do caminho entre a requisição HTTP e a resposta final."
+            },
+            {
+                id: 52, tag: "Programação Back-End",
+                question: "O que caracteriza uma API RESTful em arquiteturas Back-End?",
+                options: [
+                    { text: "O uso obrigatório de arquivos binários criptografados para comunicação.", isCorrect: false, rationale: "Utiliza geralmente JSON ou XML." },
+                    { text: "O uso dos métodos HTTP padrão (GET, POST, PUT, DELETE) de forma stateless (sem estado) sobre recursos URI.", isCorrect: true, rationale: "RESTful padroniza a comunicação web baseada em recursos e verbos HTTP." },
+                    { text: "A necessidade de manter conexões persistentes via WebSockets contínuos.", isCorrect: false, rationale: "REST é stateless." },
+                    { text: "O processamento exclusivo no navegador do cliente.", isCorrect: false, rationale: "API é serviço de servidor." }
+                ],
+                hint: "Utiliza métodos como GET para buscar e POST para criar."
+            },
+            {
+                id: 53, tag: "Programação Back-End",
+                question: "Qual é a função do npm (Node Package Manager) no ecossistema de desenvolvimento JavaScript?",
+                options: [
+                    { text: "Gerenciar pacotes, bibliotecas e dependências de projetos Node.js.", isCorrect: true, rationale: "npm é o gerenciador de pacotes padrão para instalar e compartilhar módulos." },
+                    { text: "Compilar código C++ para microcontroladores Arduino.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Executar testes de interface gráfica em navegadores.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Criar diagramas UML de classes.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Gerenciador de pacotes do ecosistema Node."
+            },
+            {
+                id: 54, tag: "Programação Back-End",
+                question: "O que significa dizer que o Node.js possui arquitetura assíncrona e orientada a eventos com single-thread?",
+                options: [
+                    { text: "Ele trava a execução de todas as requisições até que a primeira termine.", isCorrect: false, rationale: "Isso seria síncrono e bloqueante." },
+                    { text: "Ele utiliza uma única thread principal com um loop de eventos (event loop) para processar operações de I/O de forma não bloqueante.", isCorrect: true, rationale: "O event loop permite alta concorrência sem criar uma nova thread para cada requisição." },
+                    { text: "Ele executa código exclusivamente em múltiplos núcleos de hardware sem gerenciamento de software.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Ele é incompatível com protocolos web modernos.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Utiliza o famoso Event Loop para lidar com chamadas assíncronas."
+            },
+
+            // Programação para Dispositivos Móveis (55-56)
+            {
+                id: 55, tag: "Programação para Dispositivos Móveis",
+                question: "O que caracteriza frameworks de desenvolvimento mobile multiplataforma (Cross-Platform) como Flutter ou React Native?",
+                options: [
+                    { text: "A necessidade de reescrever todo o código nativo em linguagem Assembly para cada sistema.", isCorrect: false, rationale: "O oposto disso." },
+                    { text: "A capacidade de desenvolver aplicativos para múltiplas plataformas (Android e iOS) a partir de uma única base de código.", isCorrect: true, rationale: "Frameworks cross-platform otimizam o tempo de desenvolvimento gerando apps nativos para várias plataformas." },
+                    { text: "A proibição de uso de banco de dados locais.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "O funcionamento exclusivo em servidores em nuvem sem instalação no aparelho.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Escreve uma única vez e compila para Android e iOS."
+            },
+            {
+                id: 56, tag: "Programação para Dispositivos Móveis",
+                question: "No ciclo de vida de uma tela ou Activity em desenvolvimento mobile, qual método é executado quando a tela se torna visível para o usuário?",
+                options: [
+                    { text: "onDestroy()", isCorrect: false, rationale: "Executado quando a tela está sendo destruída." },
+                    { text: "onResume() ou equivalente de exibição", isCorrect: true, rationale: "onResume indica que a aplicação ganhou foco e está interagindo com o usuário." },
+                    { text: "onCompile()", isCorrect: false, rationale: "Incorreto." },
+                    { text: "onShutdown()", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Retoma a interação com o usuário."
+            },
+
+            // Teste de Software (57-58)
+            {
+                id: 57, tag: "Teste de Software",
+                question: "O que são Testes Unitários no processo de desenvolvimento de software?",
+                options: [
+                    { text: "Testes realizados pelo cliente final após a implantação em produção.", isCorrect: false, rationale: "Teste de aceitação." },
+                    { text: "Testes automatizados que verificam a menor unidade de código isolada (como uma função ou método) para garantir que ela funcione corretamente.", isCorrect: true, rationale: "Testes unitários garantem que componentes individuais operem conforme especificado." },
+                    { text: "Testes de carga realizados por 10.000 usuários simultâneos.", isCorrect: false, rationale: "Teste de carga/estresse." },
+                    { text: "Inspeção visual do leiaute CSS em monitores 4K.", isCorrect: false, rationale: "Teste de UI/Visual." }
+                ],
+                hint: "Focam na menor parte testável do código, como funções isoladas."
+            },
+            {
+                id: 58, tag: "Teste de Software",
+                question: "Qual é a principal diferença entre testes funcionais (caixa preta) e testes estruturais (caixa branca)?",
+                options: [
+                    { text: "Testes de caixa preta testam a funcionalidade com base nos requisitos sem conhecer o código interno, enquanto caixa branca examinam a estrutura interna e o código fonte.", isCorrect: true, rationale: "Caixa preta valida o 'o que faz' externamente; caixa branca valida o 'como é feito' no código." },
+                    { text: "Testes de caixa preta são feitos apenas em hardware IoT e caixa branca em HTML.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Testes de caixa branca não exigem automação.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Caixa preta é executada apenas por analistas de infraestrutura.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Preta: sem ver o código. Branca: olhando diretamente o código fonte."
+            },
+
+            // Projetos de Software e IoT (59-60)
+            {
+                id: 59, tag: "Internet das Coisas (IoT)",
+                question: "Qual é o papel de uma placa microcontrolada (como ESP32 ou Arduino) em um projeto de Internet das Coisas (IoT)?",
+                options: [
+                    { text: "Servir exclusivamente como monitor de vídeo corporativo.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Ler sinais de sensores físicos, processar lógica local e atuar em dispositivos conectados à rede.", isCorrect: true, rationale: "Microcontroladores fazem a ponte entre o mundo físico e a nuvem/rede IoT." },
+                    { text: "Atuar como servidor de banco de dados relacional corporativo pesado.", isCorrect: false, rationale: "Não possuem capacidade para SGBDs corporativos." },
+                    { text: "Substituir sistemas operacionais de computadores de mesa.", isCorrect: false, rationale: "Incorreto." }
+                ],
+                hint: "Cérebro eletrônico embarcado com pinos GPIO para sensores e atuadores."
+            },
+            {
+                id: 60, tag: "Projetos de Software",
+                question: "No encerramento e entrega de um projeto de software integrando todas as UCs do curso técnico, por que a documentação técnica e o treinamento do usuário final são fundamentais?",
+                options: [
+                    { text: "Para garantir a usabilidade, a manutenção futura do sistema e a correta operação por parte dos usuários.", isCorrect: true, rationale: "Documentação e treinamento asseguram a transição bem-sucedida, suporte e sustentabilidade do software." },
+                    { text: "Para aumentar intencionalmente os custos do projeto.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Para impedir que o cliente utilize o código fonte.", isCorrect: false, rationale: "Incorreto." },
+                    { text: "Para eliminar a necessidade de testes de software.", isCorrect: false, rationale: "Testes continuam sendo essenciais." }
+                ],
+                hint: "Garante que o cliente saiba operar o sistema e que futuros devs possam dar manutenção."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(questionsData.length).fill(null);
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        function startExam() {
+            currentQuestionIndex = 0;
+            userAnswers = new Array(questionsData.length).fill(null);
+            secondsElapsed = 0;
+
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-review').classList.add('hidden');
+            document.getElementById('screen-exam').classList.remove('hidden');
+            document.getElementById('header-stats').classList.remove('hidden');
+
+            buildPalette();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+                const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function buildPalette() {
+            const grid = document.getElementById('palette-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < questionsData.length; i++) {
+                const btn = document.createElement('button');
+                btn.id = `palette-btn-${i}`;
+                btn.innerText = i + 1;
+                btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border ${
+                    userAnswers[i] !== null 
+                        ? 'bg-senai-500 text-white border-senai-500' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`;
+                btn.onclick = () => goToQuestion(i);
+                grid.appendChild(btn);
+            }
+        }
+
+        function updatePalette() {
+            for (let i = 0; i < questionsData.length; i++) {
+                const btn = document.getElementById(`palette-btn-${i}`);
+                if (!btn) continue;
+                if (i === currentQuestionIndex) {
+                    btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border-2 border-senai-accent ${
+                        userAnswers[i] !== null ? 'bg-senai-600 text-white' : 'bg-senai-50 text-senai-700'
+                    }`;
+                } else if (userAnswers[i] !== null) {
+                    btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border bg-senai-500 text-white border-senai-500`;
+                } else {
+                    btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition flex items-center justify-center border bg-white text-gray-700 border-gray-200 hover:bg-gray-100`;
+                }
+            }
+            
+            // Update answered count
+            const answeredCount = userAnswers.filter(ans => ans !== null).length;
+            document.getElementById('answered-count').innerText = answeredCount;
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const q = questionsData[index];
+
+            document.getElementById('current-q-num').innerText = index + 1;
+            document.getElementById('question-tag').innerText = q.tag;
+            document.getElementById('question-text').innerText = q.question;
+
+            // Hide hint box by default
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('hint-toggle-text').innerText = "Mostrar Dica";
+            document.getElementById('hint-text').innerText = q.hint;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, optIndex) => {
+                const isSelected = userAnswers[index] === optIndex;
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border cursor-pointer transition flex items-start space-x-3 ${
+                    isSelected 
+                        ? 'border-senai-500 bg-senai-50 shadow-sm' 
+                        : 'border-gray-200 hover:bg-gray-50 bg-white'
+                }`;
+                div.onclick = () => selectOption(optIndex);
+
+                div.innerHTML = `
+                    <div class="flex-shrink-0 mt-0.5">
+                        <div class="w-5 h-5 rounded-full border flex items-center justify-center ${
+                            isSelected ? 'border-senai-500 bg-senai-500 text-white' : 'border-gray-300 bg-white'
+                        }">
+                            ${isSelected ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                        </div>
+                    </div>
+                    <div class="flex-grow text-sm text-gray-800 font-medium">${opt.text}</div>
+                `;
+                optionsContainer.appendChild(div);
+            });
+
+            // Navigation buttons state
+            document.getElementById('btn-prev').disabled = index === 0;
+            const nextBtnText = index === questionsData.length - 1 ? "Finalizar Simulado" : "Próxima";
+            document.getElementById('btn-next-text').innerText = nextBtnText;
+
+            updatePalette();
+        }
+
+        function selectOption(optIndex) {
+            userAnswers[currentQuestionIndex] = optIndex;
+            loadQuestion(currentQuestionIndex);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questionsData.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            } else {
+                finishExam();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            loadQuestion(index);
+        }
+
+        function toggleHint() {
+            const box = document.getElementById('hint-box');
+            const toggleText = document.getElementById('hint-toggle-text');
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+                toggleText.innerText = "Ocultar Dica";
+            } else {
+                box.classList.add('hidden');
+                toggleText.innerText = "Mostrar Dica";
+            }
+        }
+
+        function finishExam() {
+            const unanswered = userAnswers.filter(ans => ans === null).length;
+            if (unanswered > 0) {
+                if (!confirm(`Você ainda tem ${unanswered} questão(ões) sem responder. Deseja finalizar o simulado mesmo assim?`)) {
+                    return;
+                }
+            }
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            // Calculate score
+            let correctCount = 0;
+            questionsData.forEach((q, i) => {
+                const selectedOpt = userAnswers[i];
+                if (selectedOpt !== null && q.options[selectedOpt].isCorrect) {
+                    correctCount++;
+                }
+            });
+
+            const percentage = Math.round((correctCount / questionsData.length) * 100);
+
+            document.getElementById('screen-exam').classList.add('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = `${correctCount} / 60`;
+            document.getElementById('final-percentage').innerText = `Aproveitamento: ${percentage}%`;
+
+            let msg = "";
+            if (percentage >= 80) {
+                msg = "Excelente! Você demonstra alto domínio das competências técnicas do SAEP 2026 e está muito bem preparado para o mundo do trabalho!";
+            } else if (percentage >= 60) {
+                msg = "Bom desempenho! Você possui uma base sólida, mas vale revisar alguns tópicos específicos do plano de curso.";
+            } else {
+                msg = "Continue estudando! Recomendamos revisar as Unidades Curriculares com menor acerto utilizando o material didático do SENAI.";
+            }
+            document.getElementById('final-message').innerText = msg;
+        }
+
+        function reviewAnswers() {
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-review').classList.remove('hidden');
+
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, i) => {
+                const userChoice = userAnswers[i];
+                const correctOptIndex = q.options.findIndex(opt => opt.isCorrect);
+                const isCorrect = userChoice === correctOptIndex;
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-xl p-6 border shadow-sm ${
+                    isCorrect ? 'border-emerald-200 bg-emerald-50/20' : 'border-rose-200 bg-rose-50/20'
+                }`;
+
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    let badge = '';
+                    let borderClass = 'border-gray-200 bg-white text-gray-700';
+                    
+                    if (opt.isCorrect) {
+                        borderClass = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-semibold';
+                        badge = '<span class="ml-2 text-xs bg-emerald-600 text-white px-2 py-0.5 rounded">Correta</span>';
+                    } else if (userChoice === optIdx && !opt.isCorrect) {
+                        borderClass = 'border-rose-500 bg-rose-50 text-rose-900 font-semibold';
+                        badge = '<span class="ml-2 text-xs bg-rose-600 text-white px-2 py-0.5 rounded">Sua Escolha</span>';
+                    } else if (userChoice === optIdx && opt.isCorrect) {
+                        badge = '<span class="ml-2 text-xs bg-emerald-600 text-white px-2 py-0.5 rounded">Sua Escolha (Correta)</span>';
+                    }
+
+                    optionsHtml += `
+                        <div class="p-3 rounded-lg border text-sm ${borderClass} mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                            <div>${opt.text} ${badge}</div>
+                        </div>
+                        <p class="text-xs text-gray-500 ml-2 mb-3 italic">Justificativa: ${opt.rationale}</p>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold px-3 py-1 rounded-md ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            Questão ${i + 1} - ${q.tag}
+                        </span>
+                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-600' : 'text-rose-600'}">
+                            ${isCorrect ? '<i class="fa-solid fa-circle-check mr-1">Correto</i>' : '<i class="fa-solid fa-circle-xmark mr-1">Incorreto</i>'}
+                        </span>
+                    </div>
+                    <h4 class="font-bold text-gray-900 mb-4 text-base">${q.question}</h4>
+                    <div class="space-y-2 mt-2">
+                        ${optionsHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function backToResults() {
+            document.getElementById('screen-review').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+        }
+
+        function restartExam() {
+            startExam();
+        }
+    </script>
+</body>
+</html>
+

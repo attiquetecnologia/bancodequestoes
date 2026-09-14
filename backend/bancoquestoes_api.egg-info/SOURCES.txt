@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+app/config.py
+app/db.py
+app/main.py
+bancoquestoes_api.egg-info/PKG-INFO
+bancoquestoes_api.egg-info/SOURCES.txt
+bancoquestoes_api.egg-info/dependency_links.txt
+bancoquestoes_api.egg-info/requires.txt
+bancoquestoes_api.egg-info/top_level.txt
