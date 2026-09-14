@@ -292,7 +292,12 @@ Desenvolvimento: VITE_API_URL=http://127.0.0.1:8000
 Produção:        VITE_API_URL=https://bancodequestoes.rodrigoatique.workers.dev
 ```
 
-Os arquivos `frontend/.env.example` e `frontend/.env.production.example` registram esses valores. No Cloudflare Pages, cadastre `VITE_API_URL` em **Settings > Environment variables > Production** e faça um novo deploy, pois variáveis `VITE_*` são incorporadas durante o build.
+Os arquivos `frontend/.env.example` e `frontend/.env.production.example` registram esses valores. No Cloudflare Pages, cadastre `VITE_API_URL` em **Settings > Environment variables > Production** e faça um novo deploy, pois variáveis `VITE_*` são incorporadas durante o build. Essa configuração deve ser feita no projeto **Pages**, em **Workers & Pages > Pages**, e não em um Worker criado como "static assets only".
+
+Se o frontend tiver sido criado como Worker de ativos estáticos, há duas opções:
+
+1. Recomendada: crie ou converta o deploy para um projeto Cloudflare Pages, com root `frontend`, build `npm ci && npm run build` e saída `dist`. Depois adicione `VITE_API_URL` nas variáveis de ambiente do Pages.
+2. Alternativa: mantenha o Worker estático e defina a URL no próprio comando de build: `VITE_API_URL=https://api-do-render.onrender.com npm run build`. Nesse caso, não tente adicionar uma variável runtime ao Worker, porque o valor já será embutido no JavaScript gerado.
 
 O frontend chama somente a URL pública da API. Não coloque `DATABASE_URL`, `JWT_SECRET_KEY` ou qualquer segredo no frontend: variáveis `VITE_*` ficam embutidas no JavaScript entregue ao navegador. O domínio usado em `VITE_API_URL` deve ser realmente o domínio do serviço FastAPI no Render; se `bancodequestoes.rodrigoatique.workers.dev` for apenas o domínio do frontend, substitua-o pela URL `onrender.com` da API.
 
