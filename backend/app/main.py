@@ -1,6 +1,7 @@
+import json
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Body, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import cors_origins
@@ -182,3 +183,83 @@ def list_simulations(connection: Connection) -> list[dict]:
         """
     ).fetchall()
     return [dict(row) for row in rows]
+
+
+@app.get("/api/v1/simulations/{simulation_id}")
+def get_simulation(simulation_id: int, connection: Connection) -> dict:
+    simulation = connection.execute(
+        """
+        SELECT id, title, duration_minutes, question_count, status
+        FROM simulation
+        WHERE id = ? AND status = 'published'
+        """,
+        (simulation_id,),
+    ).fetchone()
+    if simulation is None:
+        raise HTTPException(status_code=404, detail="Simulado não encontrado")
+
+    rows = connection.execute(
+        """
+        SELECT question_id, position, statement_snapshot, options_snapshot
+        FROM simulation_question
+        WHERE simulation_id = ?
+        ORDER BY position
+        """,
+        (simulation_id,),
+    ).fetchall()
+    questions = []
+    for row in rows:
+        options = [
+            {"position": option["position"], "content": option["content"]}
+            for option in json.loads(row["options_snapshot"])
+        ]
+        questions.append(
+            {
+                "id": row["question_id"],
+                "position": row["position"],
+                "statement": row["statement_snapshot"],
+                "options": options,
+            }
+        )
+    return {**dict(simulation), "questions": questions}
+
+
+@app.post("/api/v1/simulations/{simulation_id}/grade")
+def grade_simulation(
+    simulation_id: int,
+    connection: Connection,
+    answers: dict[str, int] = Body(..., embed=True),
+) -> dict:
+    rows = connection.execute(
+        """
+        SELECT question_id, options_snapshot
+        FROM simulation_question
+        WHERE simulation_id = ?
+        ORDER BY position
+        """,
+        (simulation_id,),
+    ).fetchall()
+    if not rows:
+        raise HTTPException(status_code=404, detail="Simulado não encontrado")
+
+    results = []
+    correct_count = 0
+    for row in rows:
+        options = json.loads(row["options_snapshot"])
+        correct_position = next(option["position"] for option in options if option["is_correct"])
+        selected_position = answers.get(str(row["question_id"]))
+        is_correct = selected_position == correct_position
+        correct_count += int(is_correct)
+        results.append({
+            "question_id": row["question_id"],
+            "selected_position": selected_position,
+            "correct_position": correct_position,
+            "is_correct": is_correct,
+        })
+    total = len(rows)
+    return {
+        "score": correct_count,
+        "total": total,
+        "percentage": round(correct_count / total * 100),
+        "results": results,
+    }

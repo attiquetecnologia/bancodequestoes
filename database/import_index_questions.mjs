@@ -61,5 +61,10 @@ for (const question of questions) {
   );
 }
 
+lines.push(
+  `INSERT INTO simulation (id, author_id, title, duration_minutes, question_count, status) VALUES (1, 2, 'Simulado SAEP 2026 - Banco de Questões', 120, ${questions.length}, 'published');`,
+  "INSERT INTO simulation_question (simulation_id, question_id, position, points, statement_snapshot, options_snapshot) SELECT 1, q.id, q.id, 1, q.statement, json_group_array(json_object('position', o.position, 'content', o.content, 'is_correct', o.is_correct)) FROM question q JOIN option_item o ON o.question_id = q.id GROUP BY q.id, q.statement;",
+);
+
 lines.push("COMMIT;");
 process.stdout.write(`${lines.join("\n")}\n`);

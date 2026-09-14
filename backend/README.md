@@ -17,5 +17,5 @@ Variáveis opcionais:
 
 ```env
 DATABASE_PATH=/caminho/para/database/bancoquestoes.db
-CORS_ORIGINS=http://localhost:5173,https://app.exemplo.com
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,https://app.exemplo.com
 ```

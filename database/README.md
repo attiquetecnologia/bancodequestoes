@@ -15,13 +15,17 @@ sqlite3 database/bancoquestoes.db < database/schema.sql
 sqlite3 database/bancoquestoes.db < database/seed.sql
 ```
 
-Para substituir os dados de exemplo pelas questões do protótipo:
+Para substituir os dados de exemplo pelas questões do protótipo legado:
 
 ```bash
 node database/import_index_questions.mjs | sqlite3 database/bancoquestoes.db
 ```
 
-O importador lê `frontend/index.html`, preserva enunciados, alternativas, gabaritos, justificativas e dicas, cria os temas encontrados nas tags e publica as 60 questões. Ele pode ser executado novamente sem duplicar as questões.
+O importador legado lê um `questionsData` embutido no frontend. Depois da migração para React, o arquivo `frontend/simulador.html` passou a ser apenas a entrada da aplicação; para reconstruir o simulado a partir das questões já catalogadas, use:
+
+```bash
+sqlite3 database/bancoquestoes.db < database/rebuild_simulation.sql
+```
 
 Para consultar as questões catalogadas:
 

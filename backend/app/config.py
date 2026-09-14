@@ -12,5 +12,8 @@ def database_path() -> Path:
 
 
 def cors_origins() -> list[str]:
-    configured_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5500")
+    configured_origins = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://localhost:5500,http://127.0.0.1:5173,http://127.0.0.1:5500",
+    )
     return [origin.strip() for origin in configured_origins.split(",") if origin.strip()]
