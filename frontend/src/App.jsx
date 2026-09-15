@@ -24,12 +24,12 @@ export default function App() {
   useEffect(() => {
     Promise.all([getSubjects(), getSimulations()]).then(([subjectData, simulationData]) => {
       setSubjects(subjectData); setSimulations(simulationData);
-    }).catch((requestError) => setError(requestError.message));
+    }).catch((requestError) => setError(`${requestError.message}. API: ${import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`}`));
   }, []);
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => getQuestions({ ...filters, page }).then(setQuestions)
-      .catch((requestError) => setError(requestError.message)).finally(() => setLoading(false)), 180);
+      .catch((requestError) => setError(`${requestError.message}. API: ${import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`}`)).finally(() => setLoading(false)), 180);
     return () => clearTimeout(timer);
   }, [filters, page]);
   const navigate = (view) => { setActiveView(view); setMobileNav(false); };

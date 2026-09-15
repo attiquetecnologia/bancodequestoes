@@ -13,6 +13,22 @@ O arquivo `uv.lock` mantém as versões resolvidas para instalações reproduzí
 
 A API ficará disponível em `http://localhost:8000`, com documentação em `/docs`.
 
+Para acessar a partir de outro dispositivo na mesma rede Wi-Fi, execute o script na raiz do projeto:
+
+```bash
+LAN_IP=10.178.4.77 ./scripts/dev.sh
+```
+
+Use o IP mostrado pelo comando, por exemplo:
+
+```text
+Frontend: http://10.178.4.77:5173/
+Simulador: http://10.178.4.77:5173/simulador.html
+API: http://10.178.4.77:8000/docs
+```
+
+O script configura o Uvicorn e o Vite em `0.0.0.0`, define `VITE_API_URL` com o IP local e libera essa origem no CORS.
+
 ## Deploy no Render
 
 Use a configuração declarativa em `../render.yaml` ou configure manualmente:
