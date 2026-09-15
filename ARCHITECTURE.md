@@ -299,6 +299,8 @@ Se o frontend tiver sido criado como Worker de ativos estáticos, há duas opç�
 1. Recomendada: crie ou converta o deploy para um projeto Cloudflare Pages, com root `frontend`, build `npm ci && npm run build` e saída `dist`. Depois adicione `VITE_API_URL` nas variáveis de ambiente do Pages.
 2. Alternativa: mantenha o Worker estático e defina a URL no próprio comando de build: `VITE_API_URL=https://api-do-render.onrender.com npm run build`. Nesse caso, não tente adicionar uma variável runtime ao Worker, porque o valor já será embutido no JavaScript gerado.
 
+Com Pages Functions, o frontend pode usar a mesma origem em produção: `VITE_API_URL` fica vazio ou não configurado no build, o navegador chama `/api/...`, e `frontend/functions/api/[[path]].js` encaminha a requisição para `API_ORIGIN`. Configure `API_ORIGIN` como variável de runtime no Cloudflare Pages com a URL real do Render, por exemplo `https://bancoquestoes-api.onrender.com`. O endpoint de diagnóstico fica em `/api/teste`.
+
 O frontend chama somente a URL pública da API. Não coloque `DATABASE_URL`, `JWT_SECRET_KEY` ou qualquer segredo no frontend: variáveis `VITE_*` ficam embutidas no JavaScript entregue ao navegador. O domínio usado em `VITE_API_URL` deve ser realmente o domínio do serviço FastAPI no Render; se `bancodequestoes.rodrigoatique.workers.dev` for apenas o domínio do frontend, substitua-o pela URL `onrender.com` da API.
 
 ### Git e deploy independente

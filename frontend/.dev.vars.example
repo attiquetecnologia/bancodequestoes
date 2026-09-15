@@ -1,0 +1,2 @@
+# URL privada usada pela Pages Function para encaminhar chamadas ao Render.
+API_ORIGIN=https://seu-backend.onrender.com

@@ -1,3 +1,4 @@
 const configuredApiUrl = import.meta.env.VITE_API_URL;
+const defaultApiUrl = import.meta.env.PROD ? "" : "http://127.0.0.1:8000";
 
-export const API_URL = (configuredApiUrl || "http://127.0.0.1:8000").replace(/\/$/, "");
+export const API_URL = (configuredApiUrl ?? defaultApiUrl).replace(/\/$/, "");

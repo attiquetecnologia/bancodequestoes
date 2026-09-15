@@ -17,6 +17,8 @@ frontend/.cache/
 .env
 .env.*
 !.env.example
+!.env.production.example
+!.dev.vars.example
 *.pem
 *.key
 
